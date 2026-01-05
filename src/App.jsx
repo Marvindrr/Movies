@@ -1,41 +1,47 @@
 import './App.css'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {Movies} from './components/movies'
-import { useMovie } from './hooks/useMovies'
-import console, { error } from 'node:console'
+import { useMovies } from './hooks/useMovies'
 
   function useSearch() {
     const [search,updateSearch] = useState('')
     const [error, setError] = useState(null)
+      const isFirstInput = useRef(true)
+
 
       useEffect(() => {
-        if(newQuery === ''){
+        if(isFirstInput.current){
+          isFirstInput.current = search === ''
+          return
+        }
+
+        if(search === ''){
       setError('No se puede buscar una pelicula vacia')
       return
     }
 
-    if (newQuery.match(/^\d+$/)){
+    if (search.match(/^\d+$/)){
       setError('No se puede buscar una pelicula con un numero')
       return
     }
 
-    if(newQuery.length < 3 ){
-      setError('La busqueda debe tener al menos  caracteres')
+    if(search.length < 3 ){
+      setError('La busqueda debe tener al menos 3 caracteres')
       return
     }
 
     setError(null)
-  }, [query])
+  }, [search])
   return {search, updateSearch, error}
   }
 
 function App() {
-  const {movies} = useMovie()
-  const {search, updateSearch, error} = useSearch() 
+    const {search, updateSearch, error} = useSearch() 
+    const {movies, getMovies} = useMovies({search})
 
   const handleSubmit = (event) =>{
     event.preventDefault()
-    console.log({search})
+    getMovies()
   }
  
   const handleChange = (event) =>{
